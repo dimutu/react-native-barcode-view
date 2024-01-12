@@ -12,8 +12,8 @@ const LINKING_ERROR =
   '- You are not using Expo Go\n';
 
 type BarcodeViewProps = {
-  color: string;
   style: ViewStyle;
+  value: string;
 };
 
 const ComponentName = 'BarcodeViewView';

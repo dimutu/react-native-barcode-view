@@ -11,26 +11,52 @@ class BarcodeViewViewManager: RCTViewManager {
 }
 
 class BarcodeViewView : UIView {
+  var imageView: UIImageView!
 
-  @objc var color: String = "" {
-    didSet {
-      self.backgroundColor = hexStringToUIColor(hexColor: color)
-    }
+  required init?(coder: NSCoder) {
+    super.init(coder: coder)
+    setupLayout()
+  }
+    
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    setupLayout()
   }
 
-  func hexStringToUIColor(hexColor: String) -> UIColor {
-    let stringScanner = Scanner(string: hexColor)
-
-    if(hexColor.hasPrefix("#")) {
-      stringScanner.scanLocation = 1
+  func setupLayout() {
+    imageView = UIImageView()
+    addSubview(imageView)
+    imageView.translatesAutoresizingMaskIntoConstraints = false
+    let horizontalConstraint = imageView.centerXAnchor.constraint(equalTo: centerXAnchor)
+    let verticalConstraint = imageView.centerYAnchor.constraint(equalTo: centerYAnchor)
+    let widthConstraint = imageView.widthAnchor.constraint(equalTo: widthAnchor)
+    let heightConstraint = imageView.heightAnchor.constraint(equalTo: heightAnchor)
+    addConstraints([horizontalConstraint, verticalConstraint, widthConstraint, heightConstraint])
+  }
+    
+  @objc var value: String = "" {
+    didSet {
+      imageView.image = generateBarcode(from: value)
     }
-    var color: UInt32 = 0
-    stringScanner.scanHexInt32(&color)
-
-    let r = CGFloat(Int(color >> 16) & 0x000000FF)
-    let g = CGFloat(Int(color >> 8) & 0x000000FF)
-    let b = CGFloat(Int(color) & 0x000000FF)
-
-    return UIColor(red: r / 255.0, green: g / 255.0, blue: b / 255.0, alpha: 1)
+  }
+    
+  override func layoutSubviews() {
+    imageView.image = generateBarcode(from: value)
+    super.layoutSubviews()
+  }
+    
+  func generateBarcode(from string: String) -> UIImage? {
+    let data = string.data(using: String.Encoding.ascii)
+    if let filter = CIFilter(name: "CICode128BarcodeGenerator") {
+      filter.setValue(data, forKey: "inputMessage")
+      if let output = filter.outputImage {
+        let imageSize = output.extent.size
+        let transform = CGAffineTransform(scaleX: (frame.width * 2.0) / imageSize.width,
+                                          y: (frame.height * 2.0) / imageSize.height)
+        let scaledImage = output.transformed(by: transform)
+        return UIImage(ciImage: scaledImage)
+      }
+    }    
+    return nil
   }
 }

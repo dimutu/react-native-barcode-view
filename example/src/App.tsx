@@ -6,7 +6,7 @@ import { BarcodeViewView } from 'react-native-barcode-view';
 export default function App() {
   return (
     <View style={styles.container}>
-      <BarcodeViewView color="#32a852" style={styles.box} />
+      <BarcodeViewView value="091234586" style={styles.box} />
     </View>
   );
 }
@@ -18,8 +18,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   box: {
-    width: 60,
-    height: 60,
+    width: 200,
+    height: 150,
     marginVertical: 20,
   },
 });
